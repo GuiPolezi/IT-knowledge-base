@@ -1,0 +1,84 @@
+/* =====================================================================
+   CURSOR CUSTOMIZADO — ponto rápido + anel com atraso (lerp em cursor.js)
+   mix-blend-mode: difference inverte a cor do que está por baixo:
+   claro sobre a home escura, escuro sobre as telas claras — automático.
+   ===================================================================== */
+
+.cursor-dot {
+  position: fixed;
+  top: -4px;   /* centraliza os 8px sem transform extra */
+  left: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  pointer-events: none; /* nunca bloqueia cliques */
+  z-index: 10000;
+  mix-blend-mode: difference;
+  will-change: transform;
+  transition: opacity 0.3s ease;
+}
+
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid #fff;
+  background: transparent;
+  pointer-events: none;
+  z-index: 9999;
+  /* transform reservado para centralização + scale do pressed;
+     a posição é aplicada via left/top no loop do cursor.js */
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+  transition: width 0.3s ease, height 0.3s ease,
+              background-color 0.3s ease, border-color 0.3s ease,
+              opacity 0.3s ease;
+}
+
+/* Estado inicial (antes do 1º movimento) e mouse fora da janela */
+.cursor--hidden { opacity: 0; }
+
+/* Hover sobre elemento interativo: anel cresce e engole o ponto */
+.cursor-dot.cursor--hover { opacity: 0; }
+.cursor-ring.cursor--hover {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Cor própria via data-cursor-color (sem blend) */
+.cursor-ring--colored {
+  mix-blend-mode: normal;
+  border-color: transparent;
+  opacity: 0.85;
+}
+
+/* Botão do mouse pressionado */
+.cursor-ring--pressed { transform: translate(-50%, -50%) scale(0.8); }
+
+/* Esconde o cursor nativo em tudo — a classe é adicionada pelo cursor.js
+   apenas quando há ponteiro fino (touch nunca a recebe) */
+html.custom-cursor,
+html.custom-cursor * { cursor: none !important; }
+
+/* Campos de texto: volta o I-beam nativo e o cursor customizado some
+   (0,1,2 vence 0,1,1 — ambos !important) */
+html.custom-cursor input:not([type="hidden"]),
+html.custom-cursor textarea { cursor: text !important; }
+.cursor-dot.cursor--text,
+.cursor-ring.cursor--text { opacity: 0; }
+
+/* Telas de toque: remove tudo e devolve o cursor nativo */
+@media (hover: none), (pointer: coarse) {
+  .cursor-dot,
+  .cursor-ring { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-dot,
+  .cursor-ring { transition: none; }
+}
