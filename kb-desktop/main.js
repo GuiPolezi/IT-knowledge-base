@@ -8,6 +8,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     title: "Base de Conhecimento TI",
+    backgroundColor: "#0a0806",
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,

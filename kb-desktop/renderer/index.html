@@ -5,10 +5,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Base de Conhecimento · Suporte TI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="home.css" />
 </head>
-<body>
+<body class="home-active">
+
+<!-- PÁGINA INICIAL (home) — irmã de .app, nunca com a classe "view" -->
+<section id="home" class="home">
+  <canvas id="home-canvas" class="home-canvas" aria-hidden="true"></canvas>
+
+  <div class="home-topleft">
+    <p class="home-credit">Developed By: Gui Polezi</p>
+    <div class="home-card">
+      <div class="home-card-conn">
+        <span id="home-conn-icon" class="home-conn-icon offline">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+            <circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"></circle>
+          </svg>
+        </span>
+        <div class="home-conn-lines">
+          <strong id="home-conn-text">Sem conexão</strong>
+          <span id="home-server-url" class="home-server-url"></span>
+        </div>
+      </div>
+      <div class="home-card-docs">
+        <span id="home-doc-count" class="home-doc-count">–</span>
+        <span class="home-doc-label">Documentos<br>na Base</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-menu-zone" id="home-menu-zone">
+    <div id="home-menu-popup" class="home-popup hidden" role="menu">
+      <button class="home-popup-item" data-view="ask" role="menuitem">Chat</button>
+      <button class="home-popup-item" data-view="docs" role="menuitem">Documentos</button>
+      <button class="home-popup-item" data-view="history" role="menuitem">Histórico</button>
+      <button class="home-popup-item" data-view="settings" role="menuitem">Configurações</button>
+    </div>
+    <button id="home-menu-btn" class="home-menu-btn" aria-haspopup="menu" aria-expanded="false">MENU</button>
+  </div>
+
+  <h1 class="home-hero" aria-label="IT Knowledge Base">IT&nbsp;Knowledge&nbsp;Base</h1>
+</section>
+
 <div class="app">
 
   <aside class="sidebar">
@@ -177,6 +220,7 @@
   </main>
 </div>
 
+<script src="home-bg.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

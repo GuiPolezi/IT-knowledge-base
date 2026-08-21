@@ -10,16 +10,56 @@ function apiUrl(path) {
 const navItems = document.querySelectorAll(".nav-item");
 const views = document.querySelectorAll(".view");
 
-navItems.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    navItems.forEach((b) => b.classList.remove("active"));
-    views.forEach((v) => v.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById(`view-${btn.dataset.view}`).classList.add("active");
+function navigateTo(view) {
+  closeHomeMenu();
+  if (view === "home") {
+    document.body.classList.add("home-active");
+    if (window.HomeBg) window.HomeBg.start();
+    checkConnection();
+    loadDocuments();
+    return;
+  }
+  document.body.classList.remove("home-active");
+  if (window.HomeBg) window.HomeBg.stop();
+  navItems.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
+  views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
 
-    if (btn.dataset.view === "docs") loadDocuments();
-    if (btn.dataset.view === "history") loadHistory();
-  });
+  if (view === "docs") loadDocuments();
+  if (view === "history") loadHistory();
+}
+
+navItems.forEach((btn) => {
+  btn.addEventListener("click", () => navigateTo(btn.dataset.view));
+});
+
+/* ---------- HOME: popup do MENU ---------- */
+
+const homeMenuBtn = document.getElementById("home-menu-btn");
+const homeMenuPopup = document.getElementById("home-menu-popup");
+
+function closeHomeMenu() {
+  homeMenuPopup.classList.add("hidden");
+  homeMenuBtn.setAttribute("aria-expanded", "false");
+}
+
+homeMenuBtn.addEventListener("click", () => {
+  const willOpen = homeMenuPopup.classList.contains("hidden");
+  homeMenuPopup.classList.toggle("hidden");
+  homeMenuBtn.setAttribute("aria-expanded", String(willOpen));
+});
+
+homeMenuPopup.querySelectorAll(".home-popup-item").forEach((item) =>
+  item.addEventListener("click", () => navigateTo(item.dataset.view))
+);
+
+document.addEventListener("click", (e) => {
+  if (!homeMenuPopup.classList.contains("hidden") && !e.target.closest("#home-menu-zone")) {
+    closeHomeMenu();
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeHomeMenu();
 });
 
 function escapeHtml(str) {
@@ -96,6 +136,13 @@ const docTitleInput = document.getElementById("doc-title");
 const docCategoryInput = document.getElementById("doc-category");
 const docContentInput = document.getElementById("doc-content");
 const docCount = document.getElementById("doc-count");
+const homeDocCount = document.getElementById("home-doc-count");
+
+// Funil único: atualiza o contador da sidebar e o do card da home
+function setDocCount(value) {
+  docCount.textContent = value;
+  if (homeDocCount) homeDocCount.textContent = value;
+}
 
 newDocBtn.addEventListener("click", () => {
   docForm.reset();
@@ -142,10 +189,10 @@ async function loadDocuments() {
     docs = await res.json();
   } catch {
     docList.innerHTML = `<p style="color:var(--muted); font-size:14px;">Não foi possível carregar. Verifique a conexão com o servidor em Configurações.</p>`;
-    docCount.textContent = "–";
+    setDocCount("–");
     return;
   }
-  docCount.textContent = docs.length;
+  setDocCount(docs.length);
 
   if (docs.length === 0) {
     docList.innerHTML = `<p style="color:var(--muted); font-size:14px;">Nenhum documento cadastrado ainda.</p>`;
@@ -274,9 +321,27 @@ const settingsFeedback = document.getElementById("settings-feedback");
 const connDot = document.getElementById("conn-dot");
 const connText = document.getElementById("conn-text");
 
+const homeConnIcon = document.getElementById("home-conn-icon");
+const homeConnText = document.getElementById("home-conn-text");
+const homeServerUrl = document.getElementById("home-server-url");
+
 function setConnStatus(online) {
   connDot.className = "conn-dot " + (online ? "online" : "offline");
   connText.textContent = online ? "Conectado ao servidor" : "Sem conexão";
+
+  // Card de status da página inicial
+  const url = getServerUrl();
+  homeConnIcon.classList.toggle("offline", !online);
+  if (online) {
+    homeConnText.textContent = "Conectado ao Servidor";
+    homeServerUrl.textContent = url;
+  } else if (url) {
+    homeConnText.textContent = "Sem conexão";
+    homeServerUrl.textContent = url;
+  } else {
+    homeConnText.textContent = "Servidor não configurado";
+    homeServerUrl.textContent = "Configure em MENU → Configurações";
+  }
 }
 
 async function checkConnection() {
@@ -295,13 +360,6 @@ async function checkConnection() {
     setConnStatus(false);
     return false;
   }
-}
-
-function showSettingsView() {
-  navItems.forEach((b) => b.classList.remove("active"));
-  views.forEach((v) => v.classList.remove("active"));
-  document.querySelector('[data-view="settings"]').classList.add("active");
-  document.getElementById("view-settings").classList.add("active");
 }
 
 testConnBtn.addEventListener("click", async () => {
@@ -342,11 +400,8 @@ settingsForm.addEventListener("submit", async (e) => {
 /* Inicialização do app desktop */
 (async function initApp() {
   serverUrlInput.value = getServerUrl();
-  const ok = await checkConnection();
-  if (!ok && !getServerUrl()) {
-    // Primeira execução: leva direto para configurações
-    showSettingsView();
-  }
+  // O app sempre abre na home; sem servidor configurado, o card mostra o estado
+  await checkConnection();
   // Re-verifica a conexão a cada 30s
   setInterval(checkConnection, 30000);
 })();
