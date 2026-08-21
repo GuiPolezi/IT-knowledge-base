@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Base de Conhecimento · Suporte TI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">KB</div>
+      <div class="brand-text">
+        <strong>Base TI</strong>
+        <span>conhecimento interno</span>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-view="ask">
+        <span class="nav-glyph">?&gt;</span> Perguntar
+      </button>
+      <button class="nav-item" data-view="docs">
+        <span class="nav-glyph">::</span> Documentos
+      </button>
+      <button class="nav-item" data-view="history">
+        <span class="nav-glyph">~</span> Histórico
+      </button>
+      <button class="nav-item" data-view="settings">
+        <span class="nav-glyph">#</span> Configurações
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="conn-status">
+        <span id="conn-dot" class="conn-dot offline"></span>
+        <span id="conn-text">Sem conexão</span>
+      </div>
+      <div><span id="doc-count">0</span> documentos na base</div>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <!-- VIEW: PERGUNTAR -->
+    <section id="view-ask" class="view active">
+      <header class="view-header">
+        <h1>Tire sua dúvida</h1>
+        <p>Pergunte sobre um sistema, um erro ou um procedimento. A resposta é gerada a partir da documentação cadastrada.</p>
+      </header>
+
+      <form id="ask-form" class="console">
+        <span class="console-caret">&gt;</span>
+        <input
+          id="ask-input"
+          type="text"
+          placeholder="ex: Sistema Atlas: erro 504 ao gerar boleto, como corrigir?"
+          autocomplete="off"
+          required
+        />
+        <button type="submit" id="ask-submit">Perguntar</button>
+      </form>
+
+      <div class="ask-tips">
+        <span class="ask-tips-label">Como perguntar bem:</span>
+        cite o <strong>sistema</strong>, o <strong>sintoma exato</strong> (com a mensagem de erro, se houver) e o que você quer saber.
+        <div class="ask-tips-examples">
+          <span class="tip-bad">✗ "erro no atlas"</span>
+          <span class="tip-good">✓ "Sistema Atlas: cliente recebe erro 504 ao gerar boleto, como corrigir?"</span>
+        </div>
+      </div>
+
+      <div id="ask-result" class="ask-result hidden">
+        <div class="answer-card">
+          <div class="answer-header">
+            <span class="pill pill-answer">Resposta</span>
+          </div>
+          <div id="answer-text" class="answer-text"></div>
+          <div id="answer-sources" class="answer-sources"></div>
+          <div id="answer-feedback" class="answer-feedback hidden">
+            <span class="feedback-label">Essa resposta ajudou?</span>
+            <button id="fb-up" class="fb-btn" title="Sim, ajudou">👍</button>
+            <button id="fb-down" class="fb-btn" title="Não ajudou">👎</button>
+            <span id="fb-thanks" class="fb-thanks hidden">Obrigado! Feedback registrado.</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="ask-empty" class="empty-state">
+        <p>Nenhuma pergunta feita ainda. Cadastre alguns documentos e comece a perguntar.</p>
+      </div>
+
+      <div id="ask-loading" class="loading hidden">
+        <div class="spinner"></div>
+        <span>Consultando a base de conhecimento…</span>
+      </div>
+    </section>
+
+    <!-- VIEW: DOCUMENTOS -->
+    <section id="view-docs" class="view">
+      <header class="view-header">
+        <h1>Documentos</h1>
+        <p>Relatórios, notas e documentações que alimentam as respostas da IA.</p>
+      </header>
+
+      <button id="new-doc-btn" class="btn-primary">+ Novo documento</button>
+
+      <div id="doc-form-wrap" class="doc-form-wrap hidden">
+        <div class="ask-tips doc-tips">
+          <span class="ask-tips-label">Como documentar bem:</span>
+          use no título e no conteúdo as <strong>mesmas palavras que um técnico usaria ao perguntar</strong> — nome do sistema, código do erro, sintoma. Descreva o problema, a causa e a solução passo a passo. Um problema por documento.
+          <div class="ask-tips-examples">
+            <span class="tip-bad">✗ Título: "Problema de rede #12"</span>
+            <span class="tip-good">✓ Título: "Sistema Atlas — erro 504 ao gerar boleto"</span>
+          </div>
+        </div>
+        <form id="doc-form" class="doc-form">
+          <input type="hidden" id="doc-id" />
+          <label>
+            Título
+            <input id="doc-title" type="text" placeholder="ex: Sistema Atlas — reset de senha de admin" required />
+          </label>
+          <label>
+            Categoria
+            <input id="doc-category" type="text" placeholder="ex: Atlas, Rede, Faturamento…" />
+          </label>
+          <label>
+            Conteúdo
+            <textarea id="doc-content" rows="8" placeholder="Descreva o problema, a causa e a solução passo a passo…" required></textarea>
+          </label>
+          <div class="doc-form-actions">
+            <button type="button" id="doc-cancel" class="btn-ghost">Cancelar</button>
+            <button type="submit" class="btn-primary">Salvar</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="doc-list" class="doc-list"></div>
+    </section>
+
+    <!-- VIEW: HISTÓRICO -->
+    <section id="view-history" class="view">
+      <header class="view-header">
+        <h1>Histórico</h1>
+        <p>Perguntas já respondidas pela base — bom lugar pra ver dúvidas recorrentes.</p>
+      </header>
+      <div id="stats-bar" class="stats-bar"></div>
+      <div id="history-list" class="history-list"></div>
+    </section>
+
+    <!-- VIEW: CONFIGURAÇÕES -->
+    <section id="view-settings" class="view">
+      <header class="view-header">
+        <h1>Configurações</h1>
+        <p>Endereço do servidor central onde ficam os documentos da equipe.</p>
+      </header>
+
+      <form id="settings-form" class="doc-form-wrap" style="display:block;">
+        <div class="doc-form">
+          <label>
+            Endereço do servidor
+            <input id="server-url" type="text" placeholder="ex: http://192.168.1.50:3000" required />
+          </label>
+          <div class="doc-form-actions" style="justify-content:flex-start;">
+            <button type="button" id="test-conn" class="btn-ghost">Testar conexão</button>
+            <button type="submit" class="btn-primary" style="margin-bottom:0;">Salvar</button>
+          </div>
+          <p id="settings-feedback" class="settings-feedback"></p>
+        </div>
+      </form>
+    </section>
+
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "kb-desktop",
+  "version": "1.0.0",
+  "description": "Base de Conhecimento TI - aplicativo desktop",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.suaempresa.kbti",
+    "productName": "Base de Conhecimento TI",
+    "files": ["main.js", "preload.js", "renderer/**/*"],
+    "win": { "target": "nsis" },
+    "mac": { "target": "dmg" },
+    "linux": { "target": ["AppImage", "deb"] }
+  }
+}

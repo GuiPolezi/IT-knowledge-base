@@ -1,0 +1,13 @@
+# Dependências e builds (regeneráveis)
+node_modules/
+dist/
+
+# SEGREDOS - chaves de API (nunca commitar!)
+.env
+
+# DADOS - banco com informações de clientes (nunca commitar!)
+data/
+
+# Diversos
+*.log
+.DS_Store
