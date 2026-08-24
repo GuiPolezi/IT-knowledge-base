@@ -7,19 +7,21 @@ function apiUrl(path) {
 
 /* ---------- NAVEGAÇÃO ---------- */
 
-const navItems = document.querySelectorAll(".nav-item");
-const views = document.querySelectorAll(".view");
-
 const homeCanvas = document.getElementById("home-canvas");
 const reduceMotion = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* Modos: home (chuva) / páginas do shell (chat, docs — fundo preto,
-   chrome compartilhado) / views do .app (sidebar antiga).
+/* Modos: home (chuva) ou uma página do shell (chat, docs, histórico,
+   configurações — fundo preto, chrome compartilhado).
    body.page-active estaciona o canvas via CSS; a classe específica
-   (chat-active/docs-active) mostra a página. O JS só sequencia
+   (chat-active/docs-active/…) mostra a página. O JS só sequencia
    HomeBg.start/stop em volta da transição. */
-const SHELL_PAGE_CLASSES = ["chat-active", "docs-active", "history-active"];
+const SHELL_PAGE_CLASSES = [
+  "chat-active",
+  "docs-active",
+  "history-active",
+  "settings-active",
+];
 const SHELL_PAGES = {
   ask: {
     className: "chat-active",
@@ -39,13 +41,19 @@ const SHELL_PAGES = {
     container: document.getElementById("home-history"),
     onEnter: () => loadHistory(),
   },
+  settings: {
+    className: "settings-active",
+    container: document.getElementById("home-settings"),
+    onEnter: () => {
+      serverUrlInput.value = getServerUrl();
+    },
+  },
 };
 
 function navigateTo(view) {
   closeHomeMenu();
   if (view === "home") return enterHomeMode();
-  if (SHELL_PAGES[view]) return enterShellPage(SHELL_PAGES[view]);
-  enterAppView(view);
+  if (SHELL_PAGES[view]) enterShellPage(SHELL_PAGES[view]);
 }
 
 function enterHomeMode() {
@@ -80,22 +88,11 @@ function enterShellPage(page) {
   page.onEnter();
 }
 
-function enterAppView(view) {
-  document.body.classList.remove("home-active", "page-active", ...SHELL_PAGE_CLASSES);
-  if (window.HomeBg) window.HomeBg.stop(); // idempotente se já estava parado
-  navItems.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
-  views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
-}
-
 homeCanvas.addEventListener("transitionend", (e) => {
   if (e.propertyName !== "transform") return;
   if (document.body.classList.contains("page-active") && window.HomeBg) {
     window.HomeBg.stop();
   }
-});
-
-navItems.forEach((btn) => {
-  btn.addEventListener("click", () => navigateTo(btn.dataset.view));
 });
 
 /* ---------- HOME: popup do MENU ---------- */
@@ -275,15 +272,13 @@ const docIdInput = document.getElementById("doc-id");
 const docTitleInput = document.getElementById("doc-title");
 const docCategoryInput = document.getElementById("doc-category");
 const docContentInput = document.getElementById("doc-content");
-const docCount = document.getElementById("doc-count");
 const homeDocCount = document.getElementById("home-doc-count");
 
 let docsCache = [];
 
-// Funil único: atualiza o contador da sidebar e o do card da home
+// Funil único do contador de documentos (card da home)
 function setDocCount(value) {
-  docCount.textContent = value;
-  if (homeDocCount) homeDocCount.textContent = value;
+  homeDocCount.textContent = value;
 }
 
 function docsShowList() {
@@ -471,18 +466,13 @@ const settingsForm = document.getElementById("settings-form");
 const serverUrlInput = document.getElementById("server-url");
 const testConnBtn = document.getElementById("test-conn");
 const settingsFeedback = document.getElementById("settings-feedback");
-const connDot = document.getElementById("conn-dot");
-const connText = document.getElementById("conn-text");
 
 const homeConnIcon = document.getElementById("home-conn-icon");
 const homeConnText = document.getElementById("home-conn-text");
 const homeServerUrl = document.getElementById("home-server-url");
 
+// Card de status da página inicial
 function setConnStatus(online) {
-  connDot.className = "conn-dot " + (online ? "online" : "offline");
-  connText.textContent = online ? "Conectado ao servidor" : "Sem conexão";
-
-  // Card de status da página inicial
   const url = getServerUrl();
   homeConnIcon.classList.toggle("offline", !online);
   if (online) {

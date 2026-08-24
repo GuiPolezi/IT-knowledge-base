@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="chat.css" />
 <link rel="stylesheet" href="docs.css" />
 <link rel="stylesheet" href="history.css" />
+<link rel="stylesheet" href="settings.css" />
 <link rel="stylesheet" href="cursor.css" />
 </head>
 <body class="home-active">
@@ -122,73 +123,27 @@
     <div id="history-list" class="history-scroll"></div>
   </div>
 
+  <!-- MODO CONFIGURAÇÕES — mesmo shell da home (card, MENU e letreiro compartilhados) -->
+  <div id="home-settings" class="home-settings">
+    <header class="settings-head">
+      <h2 class="settings-title">Configurações</h2>
+      <p class="settings-subtitle">Endereço do servidor central onde ficam os<br>documentos da equipe.</p>
+    </header>
+    <div class="settings-zone">
+      <form id="settings-form" class="settings-card">
+        <label class="settings-label" for="server-url">Endereço do servidor</label>
+        <input id="server-url" type="text" placeholder="ex: http://192.168.1.50:3000" required />
+        <div class="settings-actions">
+          <button type="button" id="test-conn" class="settings-btn-ghost">Testar conexão</button>
+          <button type="submit" class="settings-btn-solid">Salvar</button>
+        </div>
+        <p id="settings-feedback" class="settings-feedback"></p>
+      </form>
+    </div>
+  </div>
+
   <h1 class="home-hero" aria-label="IT Knowledge Base">IT&nbsp;Knowledge&nbsp;Base</h1>
 </section>
-
-<div class="app">
-
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-mark">KB</div>
-      <div class="brand-text">
-        <strong>Base TI</strong>
-        <span>conhecimento interno</span>
-      </div>
-    </div>
-
-    <nav class="nav">
-      <button class="nav-item" data-view="home">
-        <span class="nav-glyph">&lt;-</span> Home
-      </button>
-      <button class="nav-item" data-view="ask">
-        <span class="nav-glyph">?&gt;</span> Perguntar
-      </button>
-      <button class="nav-item" data-view="docs">
-        <span class="nav-glyph">::</span> Documentos
-      </button>
-      <button class="nav-item" data-view="history">
-        <span class="nav-glyph">~</span> Histórico
-      </button>
-      <button class="nav-item active" data-view="settings">
-        <span class="nav-glyph">#</span> Configurações
-      </button>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="conn-status">
-        <span id="conn-dot" class="conn-dot offline"></span>
-        <span id="conn-text">Sem conexão</span>
-      </div>
-      <div><span id="doc-count">0</span> documentos na base</div>
-    </div>
-  </aside>
-
-  <main class="content">
-
-    <!-- VIEW: CONFIGURAÇÕES -->
-    <section id="view-settings" class="view active">
-      <header class="view-header">
-        <h1>Configurações</h1>
-        <p>Endereço do servidor central onde ficam os documentos da equipe.</p>
-      </header>
-
-      <form id="settings-form" class="doc-form-wrap" style="display:block;">
-        <div class="doc-form">
-          <label>
-            Endereço do servidor
-            <input id="server-url" type="text" placeholder="ex: http://192.168.1.50:3000" required />
-          </label>
-          <div class="doc-form-actions" style="justify-content:flex-start;">
-            <button type="button" id="test-conn" class="btn-ghost">Testar conexão</button>
-            <button type="submit" class="btn-primary" style="margin-bottom:0;">Salvar</button>
-          </div>
-          <p id="settings-feedback" class="settings-feedback"></p>
-        </div>
-      </form>
-    </section>
-
-  </main>
-</div>
 
 <script src="cursor.js"></script>
 <script src="home-bg.js"></script>

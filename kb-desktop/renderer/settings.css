@@ -1,0 +1,142 @@
+/* =====================================================================
+   MODO CONFIGURAÇÕES — quarta página do shell da home (#home), com o
+   chrome compartilhado: card de status, MENU + popup e o letreiro.
+   Ativo quando o body tem .settings-active (junto com .home-active e
+   .page-active). Camada z-index 2, como as demais.
+   ===================================================================== */
+
+:root {
+  /* ===== LARGURA — ajuste manual aqui ===== */
+  --settings-card-width: min(560px, 54vw);
+
+  --settings-dim: #8f8a80;
+  --settings-ink: #16202e;
+}
+
+.home-settings { display: none; }
+
+body.settings-active .home-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* termina acima do MENU (a "superfície" fica em --home-surface) */
+  bottom: calc(100vh - var(--home-surface));
+  z-index: 2;
+}
+
+/* ---------- Cabeçalho ---------- */
+
+.settings-head {
+  padding-top: 38px;
+  text-align: center;
+}
+
+.settings-title {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.settings-subtitle {
+  margin: 0;
+  color: var(--settings-dim);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ---------- Card do formulário ---------- */
+
+.settings-zone {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 48px; /* card no terço superior, como o mockup */
+}
+
+.settings-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 22px;
+  width: var(--settings-card-width);
+  height: max-content;
+  color: var(--settings-ink);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.settings-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.settings-card input {
+  width: 100%;
+  border: 1px solid #e3e7ee;
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--settings-ink);
+}
+
+.settings-card input::placeholder { color: #9aa3ad; }
+
+.settings-card input:focus {
+  outline: none;
+  border-color: #9aa3ad;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.settings-btn-solid {
+  background: #0b0b0b;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 9px 20px;
+  cursor: pointer;
+}
+
+.settings-btn-ghost {
+  background: #fff;
+  color: var(--settings-ink);
+  border: 1px solid #d9dde3;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 9px 20px;
+  cursor: pointer;
+}
+
+.settings-btn-ghost:hover { border-color: #9aa3ad; }
+
+/* Linha de feedback — mesmos nomes de classe que o app.js seta */
+.settings-feedback {
+  font-size: 12px;
+  min-height: 18px;
+  margin: 10px 0 0;
+}
+
+.settings-feedback.ok { color: #1e8e5a; }
+.settings-feedback.err { color: #d9584f; }
