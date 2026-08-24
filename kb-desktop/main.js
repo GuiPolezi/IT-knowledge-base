@@ -7,7 +7,7 @@ function createWindow() {
     height: 800,
     minWidth: 900,
     minHeight: 600,
-    title: "Base - TI",
+    title: "KB Project",
     // Ícone da janela no modo dev (npm start); o app instalado usa o do .exe
     icon: path.join(__dirname, "build", "icon.ico"),
     // backgroundColor: "#0a0806",
