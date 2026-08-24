@@ -2,10 +2,13 @@
   "name": "kb-desktop",
   "version": "1.0.0",
   "description": "KB Project - aplicativo desktop",
+  "author": "Gui Polezi",
+  "repository": "github:GuiPolezi/IT-knowledge-base",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build:win": "electron-builder --win",
+    "release:win": "electron-builder --win --publish always",
     "build:mac": "electron-builder --mac",
     "build:linux": "electron-builder --linux"
   },
@@ -16,8 +19,21 @@
   "build": {
     "appId": "com.suaempresa.kbti",
     "productName": "KB Project",
-    "files": ["main.js", "preload.js", "renderer/**/*"],
-    "win": { "target": "nsis" },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "GuiPolezi",
+        "repo": "IT-knowledge-base"
+      }
+    ],
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
@@ -25,7 +41,17 @@
       "createStartMenuShortcut": true,
       "include": "build/installer.nsh"
     },
-    "mac": { "target": "dmg" },
-    "linux": { "target": ["AppImage", "deb"] }
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
   }
 }

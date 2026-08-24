@@ -1,5 +1,6 @@
 const { app, BrowserWindow, Menu } = require("electron");
 const path = require("path");
+const { autoUpdater } = require("electron-updater");
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -27,6 +28,14 @@ function createWindow() {
 
 app.whenReady().then(() => {
   createWindow();
+
+  // Auto-update via GitHub Releases: baixa em segundo plano, notifica e
+  // instala quando o app fechar. Só no app empacotado (no dev não há versão)
+  if (app.isPackaged) {
+    autoUpdater.checkForUpdatesAndNotify().catch(() => {
+      // Sem internet/GitHub fora do ar: segue com a versão atual em silêncio
+    });
+  }
 
   app.on("activate", () => {
     // No macOS, reabre a janela ao clicar no ícone do dock
