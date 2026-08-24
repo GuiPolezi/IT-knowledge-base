@@ -1,0 +1,147 @@
+/* =====================================================================
+   MODO HISTÓRICO — terceira página do shell da home (#home), com o
+   chrome compartilhado: card de status, MENU + popup e o letreiro.
+   Ativo quando o body tem .history-active (junto com .home-active e
+   .page-active). Camada z-index 2, como chat e docs.
+   ===================================================================== */
+
+:root {
+  /* ===== LARGURA — ajuste manual aqui ===== */
+  --history-side-pad: 22vw; /* colunas da lista (espelha chat/docs) */
+
+  --history-dim: #8f8a80;
+  --history-ink: #16202e;
+}
+
+.home-history { display: none; }
+
+body.history-active .home-history {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* termina acima do MENU (a "superfície" fica em --home-surface) */
+  bottom: calc(100vh - var(--home-surface));
+  z-index: 2;
+}
+
+/* ---------- Cabeçalho ---------- */
+
+.history-head {
+  padding-top: 38px;
+  text-align: center;
+}
+
+.history-title {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.history-subtitle {
+  margin: 0;
+  color: var(--history-dim);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ---------- Pills de estatísticas ---------- */
+
+.history-stats {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0 4px;
+}
+
+.history-stat {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 14px;
+  white-space: nowrap;
+}
+
+.history-stat strong { margin-right: 4px; }
+
+/* ---------- Lista (rola) ---------- */
+
+.history-scroll {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px var(--history-side-pad) 18px;
+}
+
+.history-scroll::-webkit-scrollbar { width: 8px; }
+.history-scroll::-webkit-scrollbar-thumb { background: #2e2b26; border-radius: 4px; }
+
+.history-card {
+  background: #fff;
+  border-radius: 13px;
+  padding: 14px 20px;
+}
+
+.history-question {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: #0e8b96;
+  margin-bottom: 8px;
+  overflow-wrap: break-word;
+}
+
+.history-answer {
+  font-size: 13px;
+  color: var(--history-ink);
+  line-height: 1.55;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.history-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.history-date {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.history-badge {
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 5px;
+  padding: 3px 8px;
+}
+
+.history-badge.good { background: #e5f5ec; color: #1e8e5a; }
+.history-badge.bad { background: #fbe9e8; color: #d9584f; }
+.history-badge.warn { background: #faf1de; color: #b07b12; }
+
+.history-empty {
+  color: var(--history-dim);
+  font-size: 14px;
+  text-align: center;
+  margin-top: 24px;
+}

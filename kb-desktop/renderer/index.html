@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="home.css" />
 <link rel="stylesheet" href="chat.css" />
 <link rel="stylesheet" href="docs.css" />
+<link rel="stylesheet" href="history.css" />
 <link rel="stylesheet" href="cursor.css" />
 </head>
 <body class="home-active">
@@ -111,6 +112,16 @@
     </div>
   </div>
 
+  <!-- MODO HISTÓRICO — mesmo shell da home (card, MENU e letreiro compartilhados) -->
+  <div id="home-history" class="home-history">
+    <header class="history-head">
+      <h2 class="history-title">Histórico</h2>
+      <p class="history-subtitle">Perguntas já respondidas pela base — bom<br>lugar pra ver dúvidas recorrentes.</p>
+    </header>
+    <div id="stats-bar" class="history-stats"></div>
+    <div id="history-list" class="history-scroll"></div>
+  </div>
+
   <h1 class="home-hero" aria-label="IT Knowledge Base">IT&nbsp;Knowledge&nbsp;Base</h1>
 </section>
 
@@ -135,10 +146,10 @@
       <button class="nav-item" data-view="docs">
         <span class="nav-glyph">::</span> Documentos
       </button>
-      <button class="nav-item active" data-view="history">
+      <button class="nav-item" data-view="history">
         <span class="nav-glyph">~</span> Histórico
       </button>
-      <button class="nav-item" data-view="settings">
+      <button class="nav-item active" data-view="settings">
         <span class="nav-glyph">#</span> Configurações
       </button>
     </nav>
@@ -154,18 +165,8 @@
 
   <main class="content">
 
-    <!-- VIEW: HISTÓRICO -->
-    <section id="view-history" class="view active">
-      <header class="view-header">
-        <h1>Histórico</h1>
-        <p>Perguntas já respondidas pela base — bom lugar pra ver dúvidas recorrentes.</p>
-      </header>
-      <div id="stats-bar" class="stats-bar"></div>
-      <div id="history-list" class="history-list"></div>
-    </section>
-
     <!-- VIEW: CONFIGURAÇÕES -->
-    <section id="view-settings" class="view">
+    <section id="view-settings" class="view active">
       <header class="view-header">
         <h1>Configurações</h1>
         <p>Endereço do servidor central onde ficam os documentos da equipe.</p>

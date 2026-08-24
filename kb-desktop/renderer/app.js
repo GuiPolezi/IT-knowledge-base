@@ -19,7 +19,7 @@ const reduceMotion = () =>
    body.page-active estaciona o canvas via CSS; a classe específica
    (chat-active/docs-active) mostra a página. O JS só sequencia
    HomeBg.start/stop em volta da transição. */
-const SHELL_PAGE_CLASSES = ["chat-active", "docs-active"];
+const SHELL_PAGE_CLASSES = ["chat-active", "docs-active", "history-active"];
 const SHELL_PAGES = {
   ask: {
     className: "chat-active",
@@ -33,6 +33,11 @@ const SHELL_PAGES = {
       docsShowList();
       loadDocuments();
     },
+  },
+  history: {
+    className: "history-active",
+    container: document.getElementById("home-history"),
+    onEnter: () => loadHistory(),
   },
 };
 
@@ -80,7 +85,6 @@ function enterAppView(view) {
   if (window.HomeBg) window.HomeBg.stop(); // idempotente se já estava parado
   navItems.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
   views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
-  if (view === "history") loadHistory();
 }
 
 homeCanvas.addEventListener("transitionend", (e) => {
@@ -398,12 +402,13 @@ async function loadHistory() {
     const res = await fetch(apiUrl("/history"));
     items = await res.json();
   } catch {
-    historyList.innerHTML = `<p style="color:var(--muted); font-size:14px;">Não foi possível carregar. Verifique a conexão com o servidor em Configurações.</p>`;
+    historyList.innerHTML = `<p class="history-empty">Não foi possível carregar. Verifique a conexão com o servidor em Configurações.</p>`;
     return;
   }
 
   if (items.length === 0) {
-    historyList.innerHTML = `<p style="color:var(--muted); font-size:14px;">Nenhuma pergunta registrada ainda.</p>`;
+    historyList.innerHTML = `<p class="history-empty">Nenhuma pergunta registrada ainda.</p>`;
+    loadStats();
     return;
   }
 
@@ -412,9 +417,9 @@ async function loadHistory() {
       (h) => `
     <div class="history-card">
       <div class="history-question">&gt; ${escapeHtml(h.question)}</div>
-      <div class="history-answer">${escapeHtml(h.answer)}</div>
-      <div class="history-meta">
-        ${formatDate(h.created_at)}
+      <div class="history-answer">${renderMarkdownLite(h.answer)}</div>
+      <div class="history-foot">
+        <span class="history-date">${formatDate(h.created_at)}</span>
         ${feedbackBadge(h)}
       </div>
     </div>
@@ -427,9 +432,9 @@ async function loadHistory() {
 
 function feedbackBadge(h) {
   let badges = "";
-  if (h.feedback === 1) badges += `<span class="badge badge-good">👍 útil</span>`;
-  if (h.feedback === -1) badges += `<span class="badge badge-bad">👎 não ajudou</span>`;
-  if (!h.sources || h.sources.length === 0) badges += `<span class="badge badge-warn">sem fontes</span>`;
+  if (h.feedback === 1) badges += `<span class="history-badge good">👍 útil</span>`;
+  if (h.feedback === -1) badges += `<span class="history-badge bad">👎 não ajudou</span>`;
+  if (!h.sources || h.sources.length === 0) badges += `<span class="history-badge warn">sem fontes</span>`;
   return badges;
 }
 
@@ -440,10 +445,10 @@ async function loadStats() {
     const { totals } = await res.json();
     if (!totals || totals.total === 0) { statsBar.innerHTML = ""; return; }
     statsBar.innerHTML = `
-      <div class="stat"><strong>${totals.total}</strong> perguntas</div>
-      <div class="stat stat-good"><strong>${totals.positivos || 0}</strong> 👍 úteis</div>
-      <div class="stat stat-bad"><strong>${totals.negativos || 0}</strong> 👎 não ajudaram</div>
-      <div class="stat stat-warn"><strong>${totals.sem_fontes || 0}</strong> sem fontes</div>
+      <div class="history-stat"><strong>${totals.total}</strong> Perguntas</div>
+      <div class="history-stat"><strong>${totals.positivos || 0}</strong> Útil</div>
+      <div class="history-stat"><strong>${totals.negativos || 0}</strong> Não Ajudaram</div>
+      <div class="history-stat"><strong>${totals.sem_fontes || 0}</strong> Sem Fontes</div>
     `;
   } catch {
     statsBar.innerHTML = "";
