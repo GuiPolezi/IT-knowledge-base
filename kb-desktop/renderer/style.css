@@ -19,7 +19,7 @@ body {
   margin: 0;
   font-family: var(--font-ui);
   /* mesmo tom do shell (--home-bg) — sem flash claro em nenhum momento */
-  background: #0a0806;
+  background: #05090f;
   color: var(--text);
   -webkit-font-smoothing: antialiased;
 }

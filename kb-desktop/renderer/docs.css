@@ -71,7 +71,7 @@ body.docs-active .home-docs {
   cursor: pointer;
 }
 
-.docs-new-btn:hover { color: var(--home-gold-hot); }
+.docs-new-btn:hover { color: var(--home-glow); }
 
 /* ---------- Lista (rola) ---------- */
 

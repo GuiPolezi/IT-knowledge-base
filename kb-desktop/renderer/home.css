@@ -1,13 +1,11 @@
 /* =====================================================================
-   PÁGINA INICIAL (home) — tema escuro/dourado, totalmente namespaceado
-   (--home-* / .home*) para não conflitar com o tema claro das telas
-   internas em style.css.
+   PÁGINA INICIAL (home) — tema oceano profundo, totalmente namespaceado
+   (--home-* / .home*) para não conflitar com as telas internas.
    ===================================================================== */
 
 :root {
-  --home-bg:       #0a0806;  /* preto com calor sutil */
-  --home-gold:     #c9a86a;  /* símbolos padrão */
-  --home-gold-hot: #f5e6c2;  /* cabeça brilhante da coluna */
+  --home-bg:       #05090f;  /* abismo (mesmo tom do oceano do canvas) */
+  --home-glow:     #5fe3c8;  /* bioluminescência do polvo (hovers) */
   --home-ink:      #f2efe9;  /* texto claro */
   --home-ink-dim:  #b9b3a8;  /* texto secundário */
   /* Manter em sincronia com SURFACE_POS = 0.76 em home-bg.js */
@@ -38,13 +36,13 @@ body.home-active .app { display: none; }
   height: 100%;
   display: block;
   z-index: 0;
-  /* Transição home ↔ chat: a chuva desliza para cima e sai (tudo que ela
-     pinta vive no canvas; .home tem overflow:hidden, então sai limpo) */
+  /* Transição home ↔ páginas: o oceano desliza para cima e sai (tudo que
+     ele pinta vive no canvas; .home tem overflow:hidden, então sai limpo) */
   transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
 
-/* Qualquer página do shell aberta (chat, docs, …) estaciona a chuva */
+/* Qualquer página do shell aberta (chat, docs, …) estaciona o oceano */
 body.page-active .home-canvas { transform: translateY(-100%); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -167,7 +165,7 @@ body.page-active .home-canvas { transform: translateY(-100%); }
   text-underline-offset: 4px;
 }
 
-.home-menu-btn:hover { color: var(--home-gold-hot); }
+.home-menu-btn:hover { color: var(--home-glow); }
 
 .home-popup {
   position: absolute;
