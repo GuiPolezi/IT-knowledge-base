@@ -59,20 +59,6 @@ body.chat-active .home-chat {
   text-align: center;
 }
 
-/* Entrada do conteúdo: só quando vem da home (classe posta pelo JS),
-   atrasada para o fim da saída da chuva — o "both" mantém invisível
-   durante o delay */
-.home-chat.chat-anim { animation: chat-enter 0.45s ease 0.55s both; }
-
-@keyframes chat-enter {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .home-chat.chat-anim { animation: none; }
-}
-
 /* ---------- Estado de conversa: thread + composer no rodapé ---------- */
 
 .home-chat.has-thread .chat-title,

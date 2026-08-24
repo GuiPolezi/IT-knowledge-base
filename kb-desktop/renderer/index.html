@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="style.css" />
 <link rel="stylesheet" href="home.css" />
 <link rel="stylesheet" href="chat.css" />
+<link rel="stylesheet" href="docs.css" />
 <link rel="stylesheet" href="cursor.css" />
 </head>
 <body class="home-active">
@@ -64,6 +65,52 @@
        (com a mensagem de erro, se houver) e o que você quer saber.</p>
   </div>
 
+  <!-- MODO DOCUMENTOS — mesmo shell da home (card, MENU e letreiro compartilhados) -->
+  <div id="home-docs" class="home-docs is-list">
+    <header class="docs-head">
+      <h2 class="docs-title">Documentos</h2>
+      <p class="docs-subtitle">Relatórios, notas e documentações<br>que alimentam as respostas da IA.</p>
+    </header>
+
+    <!-- estado LISTA -->
+    <button id="docs-new-btn" class="docs-new-btn" aria-label="Novo documento">+</button>
+    <div id="docs-list" class="docs-list"></div>
+
+    <!-- estado FORMULÁRIO (criar e editar) -->
+    <div class="docs-form-zone">
+      <div class="docs-form-card">
+        <div class="docs-tips">
+          <strong>Como documentar bem:</strong> use no título e no conteúdo as mesmas palavras que um
+          técnico usaria ao perguntar — nome do sistema, código do erro, sintoma. Descreva o problema,
+          a causa e a solução passo a passo. Um problema por documento.
+          <div class="docs-tips-examples">
+            <span class="docs-tip-bad">✗ Título: "Problema de rede #12"</span>
+            <span class="docs-tip-good">✓ Título: "Sistema Atlas — erro 504 ao gerar boleto"</span>
+          </div>
+        </div>
+        <form id="doc-form" class="docs-form">
+          <input type="hidden" id="doc-id" />
+          <label>
+            Título
+            <input id="doc-title" type="text" placeholder="ex: Sistema Atlas — reset de senha de admin" required />
+          </label>
+          <label>
+            Categoria
+            <input id="doc-category" type="text" placeholder="ex: Atlas, Rede, Faturamento…" />
+          </label>
+          <label>
+            Conteúdo
+            <textarea id="doc-content" rows="4" placeholder="Descreva o problema, a causa e a solução passo a passo…" required></textarea>
+          </label>
+          <div class="docs-form-actions">
+            <button type="button" id="doc-cancel" class="docs-btn-ghost">Cancelar</button>
+            <button type="submit" class="docs-btn-solid">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <h1 class="home-hero" aria-label="IT Knowledge Base">IT&nbsp;Knowledge&nbsp;Base</h1>
 </section>
 
@@ -85,10 +132,10 @@
       <button class="nav-item" data-view="ask">
         <span class="nav-glyph">?&gt;</span> Perguntar
       </button>
-      <button class="nav-item active" data-view="docs">
+      <button class="nav-item" data-view="docs">
         <span class="nav-glyph">::</span> Documentos
       </button>
-      <button class="nav-item" data-view="history">
+      <button class="nav-item active" data-view="history">
         <span class="nav-glyph">~</span> Histórico
       </button>
       <button class="nav-item" data-view="settings">
@@ -107,50 +154,8 @@
 
   <main class="content">
 
-    <!-- VIEW: DOCUMENTOS -->
-    <section id="view-docs" class="view active">
-      <header class="view-header">
-        <h1>Documentos</h1>
-        <p>Relatórios, notas e documentações que alimentam as respostas da IA.</p>
-      </header>
-
-      <button id="new-doc-btn" class="btn-primary">+ Novo documento</button>
-
-      <div id="doc-form-wrap" class="doc-form-wrap hidden">
-        <div class="ask-tips doc-tips">
-          <span class="ask-tips-label">Como documentar bem:</span>
-          use no título e no conteúdo as <strong>mesmas palavras que um técnico usaria ao perguntar</strong> — nome do sistema, código do erro, sintoma. Descreva o problema, a causa e a solução passo a passo. Um problema por documento.
-          <div class="ask-tips-examples">
-            <span class="tip-bad">✗ Título: "Problema de rede #12"</span>
-            <span class="tip-good">✓ Título: "Sistema Atlas — erro 504 ao gerar boleto"</span>
-          </div>
-        </div>
-        <form id="doc-form" class="doc-form">
-          <input type="hidden" id="doc-id" />
-          <label>
-            Título
-            <input id="doc-title" type="text" placeholder="ex: Sistema Atlas — reset de senha de admin" required />
-          </label>
-          <label>
-            Categoria
-            <input id="doc-category" type="text" placeholder="ex: Atlas, Rede, Faturamento…" />
-          </label>
-          <label>
-            Conteúdo
-            <textarea id="doc-content" rows="8" placeholder="Descreva o problema, a causa e a solução passo a passo…" required></textarea>
-          </label>
-          <div class="doc-form-actions">
-            <button type="button" id="doc-cancel" class="btn-ghost">Cancelar</button>
-            <button type="submit" class="btn-primary">Salvar</button>
-          </div>
-        </form>
-      </div>
-
-      <div id="doc-list" class="doc-list"></div>
-    </section>
-
     <!-- VIEW: HISTÓRICO -->
-    <section id="view-history" class="view">
+    <section id="view-history" class="view active">
       <header class="view-header">
         <h1>Histórico</h1>
         <p>Perguntas já respondidas pela base — bom lugar pra ver dúvidas recorrentes.</p>

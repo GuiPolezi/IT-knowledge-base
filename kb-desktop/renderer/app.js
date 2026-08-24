@@ -14,59 +14,78 @@ const homeCanvas = document.getElementById("home-canvas");
 const reduceMotion = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* Três modos: home (chuva) / chat (shell preto) / views do .app.
-   A transição home→chat é CSS puro no canvas (body.chat-active);
-   o JS só sequencia HomeBg.start/stop em volta dela. */
+/* Modos: home (chuva) / páginas do shell (chat, docs — fundo preto,
+   chrome compartilhado) / views do .app (sidebar antiga).
+   body.page-active estaciona o canvas via CSS; a classe específica
+   (chat-active/docs-active) mostra a página. O JS só sequencia
+   HomeBg.start/stop em volta da transição. */
+const SHELL_PAGE_CLASSES = ["chat-active", "docs-active"];
+const SHELL_PAGES = {
+  ask: {
+    className: "chat-active",
+    container: document.getElementById("home-chat"),
+    onEnter: () => chatInput.focus(),
+  },
+  docs: {
+    className: "docs-active",
+    container: document.getElementById("home-docs"),
+    onEnter: () => {
+      docsShowList();
+      loadDocuments();
+    },
+  },
+};
+
 function navigateTo(view) {
   closeHomeMenu();
   if (view === "home") return enterHomeMode();
-  if (view === "ask") return enterChatMode();
+  if (SHELL_PAGES[view]) return enterShellPage(SHELL_PAGES[view]);
   enterAppView(view);
 }
 
 function enterHomeMode() {
   document.body.classList.add("home-active");
   if (window.HomeBg) window.HomeBg.start(); // liga ANTES de desestacionar o canvas
-  document.body.classList.remove("chat-active"); // desliza de volta (ou instantâneo vindo do .app)
+  // desliza de volta (ou instantâneo vindo do .app)
+  document.body.classList.remove("page-active", ...SHELL_PAGE_CLASSES);
   checkConnection();
   loadDocuments();
 }
 
-function enterChatMode() {
+function enterShellPage(page) {
   const fromRain =
     document.body.classList.contains("home-active") &&
-    !document.body.classList.contains("chat-active");
+    !document.body.classList.contains("page-active");
   // Entrada do conteúdo atrasada (fade) só quando a chuva está saindo;
-  // vindo do .app a troca é instantânea, sem delay
-  homeChat.classList.toggle("chat-anim", fromRain && !reduceMotion());
-  document.body.classList.add("home-active", "chat-active");
+  // trocando entre páginas do shell ou vindo do .app é instantâneo
+  page.container.classList.toggle("page-anim", fromRain && !reduceMotion());
+  document.body.classList.remove(...SHELL_PAGE_CLASSES);
+  document.body.classList.add("home-active", "page-active", page.className);
   if (!fromRain || reduceMotion()) {
-    // vindo do .app (canvas some sem transição) ou com movimento reduzido
     if (window.HomeBg) window.HomeBg.stop();
   } else {
     // animado: a chuva continua pintando enquanto desliza para cima;
     // o stop acontece no transitionend, com fallback caso o evento se perca
     setTimeout(() => {
-      if (document.body.classList.contains("chat-active") && window.HomeBg) {
+      if (document.body.classList.contains("page-active") && window.HomeBg) {
         window.HomeBg.stop();
       }
     }, 850);
   }
-  chatInput.focus();
+  page.onEnter();
 }
 
 function enterAppView(view) {
-  document.body.classList.remove("home-active", "chat-active");
+  document.body.classList.remove("home-active", "page-active", ...SHELL_PAGE_CLASSES);
   if (window.HomeBg) window.HomeBg.stop(); // idempotente se já estava parado
   navItems.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
   views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
-  if (view === "docs") loadDocuments();
   if (view === "history") loadHistory();
 }
 
 homeCanvas.addEventListener("transitionend", (e) => {
   if (e.propertyName !== "transform") return;
-  if (document.body.classList.contains("chat-active") && window.HomeBg) {
+  if (document.body.classList.contains("page-active") && window.HomeBg) {
     window.HomeBg.stop();
   }
 });
@@ -241,13 +260,13 @@ chatThread.addEventListener("click", async (e) => {
   }
 });
 
-/* ---------- DOCUMENTOS ---------- */
+/* ---------- DOCUMENTOS (shell da home) ---------- */
 
-const newDocBtn = document.getElementById("new-doc-btn");
-const docFormWrap = document.getElementById("doc-form-wrap");
+const homeDocs = document.getElementById("home-docs");
+const docsNewBtn = document.getElementById("docs-new-btn");
+const docsList = document.getElementById("docs-list");
 const docForm = document.getElementById("doc-form");
 const docCancel = document.getElementById("doc-cancel");
-const docList = document.getElementById("doc-list");
 const docIdInput = document.getElementById("doc-id");
 const docTitleInput = document.getElementById("doc-title");
 const docCategoryInput = document.getElementById("doc-category");
@@ -255,21 +274,38 @@ const docContentInput = document.getElementById("doc-content");
 const docCount = document.getElementById("doc-count");
 const homeDocCount = document.getElementById("home-doc-count");
 
+let docsCache = [];
+
 // Funil único: atualiza o contador da sidebar e o do card da home
 function setDocCount(value) {
   docCount.textContent = value;
   if (homeDocCount) homeDocCount.textContent = value;
 }
 
-newDocBtn.addEventListener("click", () => {
+function docsShowList() {
+  homeDocs.classList.add("is-list");
+  homeDocs.classList.remove("is-form");
+}
+
+// Sem id → criar; com id → editar (pré-preenche do cache)
+function openDocForm(id) {
   docForm.reset();
   docIdInput.value = "";
-  docFormWrap.classList.remove("hidden");
-});
+  if (id != null) {
+    const doc = docsCache.find((d) => d.id === id);
+    if (!doc) return;
+    docIdInput.value = doc.id;
+    docTitleInput.value = doc.title;
+    docCategoryInput.value = doc.category;
+    docContentInput.value = doc.content;
+  }
+  homeDocs.classList.remove("is-list");
+  homeDocs.classList.add("is-form");
+  docTitleInput.focus();
+}
 
-docCancel.addEventListener("click", () => {
-  docFormWrap.classList.add("hidden");
-});
+docsNewBtn.addEventListener("click", () => openDocForm());
+docCancel.addEventListener("click", docsShowList);
 
 docForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -290,8 +326,8 @@ docForm.addEventListener("submit", async (e) => {
   });
 
   if (res.ok) {
-    docFormWrap.classList.add("hidden");
     docForm.reset();
+    docsShowList();
     loadDocuments();
   } else {
     const data = await res.json();
@@ -305,57 +341,52 @@ async function loadDocuments() {
     const res = await fetch(apiUrl("/documents"));
     docs = await res.json();
   } catch {
-    docList.innerHTML = `<p style="color:var(--muted); font-size:14px;">Não foi possível carregar. Verifique a conexão com o servidor em Configurações.</p>`;
+    docsList.innerHTML = `<p class="docs-empty">Não foi possível carregar. Verifique a conexão com o servidor em Configurações.</p>`;
     setDocCount("–");
     return;
   }
   setDocCount(docs.length);
 
   if (docs.length === 0) {
-    docList.innerHTML = `<p style="color:var(--muted); font-size:14px;">Nenhum documento cadastrado ainda.</p>`;
+    docsList.innerHTML = `<p class="docs-empty">Nenhum documento cadastrado ainda.</p>`;
+    docsCache = docs;
     return;
   }
 
-  docList.innerHTML = docs
+  docsList.innerHTML = docs
     .map(
       (d) => `
-    <div class="doc-card">
-      <div class="doc-card-main">
-        <div class="doc-card-title">${escapeHtml(d.title)}</div>
-        <div class="doc-card-meta">
-          <span class="pill pill-category">${escapeHtml(d.category)}</span>
-          &nbsp;·&nbsp; atualizado em ${formatDate(d.updated_at)}
+    <article class="docs-card">
+      <div class="docs-card-main">
+        <div class="docs-card-title">${escapeHtml(d.title)}</div>
+        <div class="docs-card-meta">
+          <span class="docs-pill">${escapeHtml(d.category)}</span>
+          <span class="docs-updated">Atualizado em ${formatDate(d.updated_at)}</span>
         </div>
-        <div class="doc-card-excerpt">${escapeHtml(d.content)}</div>
       </div>
-      <div class="doc-card-actions">
-        <button class="icon-btn" onclick="editDoc(${d.id})">Editar</button>
-        <button class="icon-btn danger" onclick="deleteDoc(${d.id})">Excluir</button>
+      <div class="docs-card-actions">
+        <button class="docs-btn-solid docs-edit" data-id="${d.id}">Editar</button>
+        <button class="docs-btn-ghost docs-delete" data-id="${d.id}">Excluir</button>
       </div>
-    </div>
+    </article>
   `
     )
     .join("");
 
-  window.__docsCache = docs;
+  docsCache = docs;
 }
 
-window.editDoc = function (id) {
-  const doc = (window.__docsCache || []).find((d) => d.id === id);
-  if (!doc) return;
-  docIdInput.value = doc.id;
-  docTitleInput.value = doc.title;
-  docCategoryInput.value = doc.category;
-  docContentInput.value = doc.content;
-  docFormWrap.classList.remove("hidden");
-  docFormWrap.scrollIntoView({ behavior: "smooth" });
-};
-
-window.deleteDoc = async function (id) {
-  if (!confirm("Excluir este documento da base de conhecimento?")) return;
-  await fetch(apiUrl(`/documents/${id}`), { method: "DELETE" });
-  loadDocuments();
-};
+// Ações dos cards por delegação (a lista é gerada via innerHTML)
+docsList.addEventListener("click", async (e) => {
+  const edit = e.target.closest(".docs-edit");
+  if (edit) return openDocForm(Number(edit.dataset.id));
+  const del = e.target.closest(".docs-delete");
+  if (del) {
+    if (!confirm("Excluir este documento da base de conhecimento?")) return;
+    await fetch(apiUrl(`/documents/${del.dataset.id}`), { method: "DELETE" });
+    loadDocuments();
+  }
+});
 
 /* ---------- HISTÓRICO ---------- */
 

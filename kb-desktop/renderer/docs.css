@@ -1,0 +1,275 @@
+/* =====================================================================
+   MODO DOCUMENTOS — segunda página do shell da home (#home), com o
+   chrome compartilhado: card de status, MENU + popup e o letreiro.
+   Ativo quando o body tem .docs-active (junto com .home-active e
+   .page-active). Camada z-index 2, como o chat.
+   Estados: .is-list (lista + botão "+") ↔ .is-form (formulário).
+   ===================================================================== */
+
+:root {
+  /* ===== LARGURAS — ajuste manual aqui ===== */
+  --docs-side-pad: 22vw;                  /* colunas da lista (espelha --chat-side-pad) */
+  --docs-form-width: min(640px, 54vw);    /* card do formulário */
+
+  --docs-dim: #8f8a80;
+  --docs-card-ink: #16202e;
+}
+
+.home-docs { display: none; }
+
+body.docs-active .home-docs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* termina acima do MENU (a "superfície" fica em --home-surface) */
+  bottom: calc(100vh - var(--home-surface));
+  z-index: 2;
+}
+
+.home-docs.is-form .docs-new-btn,
+.home-docs.is-form .docs-list { display: none; }
+.home-docs.is-list .docs-form-zone { display: none; }
+
+/* ---------- Cabeçalho (os dois estados) ---------- */
+
+.docs-head {
+  /* título centrado convive com o card (que fica à esquerda) — mockup */
+  padding-top: 38px;
+  text-align: center;
+}
+
+.docs-title {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.docs-subtitle {
+  margin: 0;
+  color: var(--docs-dim);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ---------- Botão "+" ---------- */
+
+.docs-new-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 12px 18px;
+  cursor: pointer;
+}
+
+.docs-new-btn:hover { color: var(--home-gold-hot); }
+
+/* ---------- Lista (rola) ---------- */
+
+.docs-list {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px var(--docs-side-pad) 18px;
+}
+
+.docs-list::-webkit-scrollbar { width: 8px; }
+.docs-list::-webkit-scrollbar-thumb { background: #2e2b26; border-radius: 4px; }
+
+.docs-card {
+  background: #fff;
+  border-radius: 13px;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.docs-card-title {
+  color: var(--docs-card-ink);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.docs-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 7px;
+}
+
+.docs-pill {
+  background: #fbe9e8;
+  color: #d9584f;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+.docs-updated {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.docs-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Pílulas de ação (card e formulário) */
+
+.docs-btn-solid {
+  background: #0b0b0b;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.docs-btn-ghost {
+  background: #fff;
+  color: var(--docs-card-ink);
+  border: 1px solid #d9dde3;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.docs-btn-ghost:hover { border-color: #9aa3ad; }
+
+.docs-empty {
+  color: var(--docs-dim);
+  font-size: 14px;
+  text-align: center;
+  margin-top: 24px;
+}
+
+/* ---------- Formulário (card branco central) ---------- */
+
+.docs-form-zone {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 12px;
+}
+
+.docs-form-zone::-webkit-scrollbar { width: 8px; }
+.docs-form-zone::-webkit-scrollbar-thumb { background: #2e2b26; border-radius: 4px; }
+
+.docs-form-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px 24px 18px;
+  width: var(--docs-form-width);
+  height: max-content;
+  color: var(--docs-card-ink);
+}
+
+.docs-tips {
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.docs-tips strong { font-weight: 700; }
+
+.docs-tips-examples {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  margin-top: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e3e7ee;
+  margin-bottom: 12px;
+}
+
+.docs-tip-bad { color: #d9584f; }
+.docs-tip-good { color: #1e8e5a; }
+
+.docs-form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.docs-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--docs-card-ink);
+}
+
+.docs-form input,
+.docs-form textarea {
+  border: 1px solid #e3e7ee;
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--docs-card-ink);
+  resize: vertical;
+}
+
+.docs-form input::placeholder,
+.docs-form textarea::placeholder { color: #9aa3ad; }
+
+.docs-form input:focus,
+.docs-form textarea:focus {
+  outline: none;
+  border-color: #9aa3ad;
+}
+
+.docs-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* No formulário os botões são caixa normal (mockup); maiúsculas só nos cards */
+.docs-form-actions .docs-btn-solid,
+.docs-form-actions .docs-btn-ghost {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 12px;
+  padding: 9px 20px;
+}

@@ -139,18 +139,7 @@ body {
 
 .hidden { display: none !important; }
 
-.pill {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 4px 9px;
-  border-radius: 5px;
-}
-.pill-category { background: #eef1f6; color: var(--muted); }
-
-/* ---------- DOCUMENTOS ---------- */
+/* ---------- FORMULÁRIOS (usados por Configurações) ---------- */
 
 .btn-primary {
   background: var(--sidebar-bg);
@@ -205,46 +194,6 @@ body {
 .doc-form input:focus, .doc-form textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
 
 .doc-form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
-
-.doc-list { display: flex; flex-direction: column; gap: 10px; }
-
-.doc-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 18px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 14px;
-}
-
-.doc-card-main { flex: 1; min-width: 0; }
-.doc-card-title { font-weight: 600; font-size: 14.5px; margin-bottom: 4px; }
-.doc-card-meta { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; }
-.doc-card-excerpt {
-  font-size: 13.5px;
-  color: var(--muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.doc-card-actions { display: flex; gap: 8px; flex-shrink: 0; }
-.icon-btn {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 6px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.icon-btn:hover { border-color: var(--accent); color: var(--accent-dark); }
-.icon-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
 
 /* ---------- HISTÓRICO ---------- */
 
@@ -311,39 +260,6 @@ body {
 }
 .settings-feedback.ok { color: #1e8e5a; }
 .settings-feedback.err { color: var(--danger); }
-
-/* ---------- DICA DE COMO PERGUNTAR ---------- */
-
-.ask-tips {
-  margin-top: 14px;
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.ask-tips-label {
-  font-weight: 600;
-  color: var(--text);
-}
-
-.ask-tips-examples {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin-top: 6px;
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-}
-
-.tip-bad { color: var(--danger); }
-.tip-good { color: #1e8e5a; }
-
-.doc-tips {
-  margin-top: 0;
-  margin-bottom: 18px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
-}
 
 /* ---------- ESTATÍSTICAS E BADGES ---------- */
 
