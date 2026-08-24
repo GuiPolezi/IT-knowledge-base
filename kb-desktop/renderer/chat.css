@@ -11,10 +11,10 @@
   --chat-dim: #8f8a80;
 
   /* ===== LARGURAS DO CONTEÚDO — ajuste manual aqui ===== */
-  --chat-input-width: min(560px, 72vw);      /* pílula de mensagem (os 2 estados) */
-  --chat-side-pad: clamp(24px, 9vw, 140px);  /* margens laterais da conversa */
+  --chat-input-width: min(560px, 60vw);      /* pílula de mensagem (os 2 estados) */
+  --chat-side-pad: 22vw;                     /* margens laterais da conversa (colunas do design) */
   --chat-user-max: 60%;                      /* largura máx. do balão da pergunta */
-  --chat-answer-max: 72%;                    /* largura máx. do bloco da resposta */
+  --chat-answer-max: 100%;                   /* largura máx. do bloco da resposta */
   --chat-tips-max: 520px;                    /* largura máx. da dica no estado vazio */
 }
 
