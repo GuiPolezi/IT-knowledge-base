@@ -38,6 +38,16 @@ body.home-active .app { display: none; }
   height: 100%;
   display: block;
   z-index: 0;
+  /* Transição home ↔ chat: a chuva desliza para cima e sai (tudo que ela
+     pinta vive no canvas; .home tem overflow:hidden, então sai limpo) */
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+body.chat-active .home-canvas { transform: translateY(-100%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .home-canvas { transition: none; }
 }
 
 /* ---------- Crédito + card de status (topo-esquerdo) ---------- */

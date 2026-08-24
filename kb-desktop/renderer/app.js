@@ -10,23 +10,66 @@ function apiUrl(path) {
 const navItems = document.querySelectorAll(".nav-item");
 const views = document.querySelectorAll(".view");
 
+const homeCanvas = document.getElementById("home-canvas");
+const reduceMotion = () =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* Três modos: home (chuva) / chat (shell preto) / views do .app.
+   A transição home→chat é CSS puro no canvas (body.chat-active);
+   o JS só sequencia HomeBg.start/stop em volta dela. */
 function navigateTo(view) {
   closeHomeMenu();
-  if (view === "home") {
-    document.body.classList.add("home-active");
-    if (window.HomeBg) window.HomeBg.start();
-    checkConnection();
-    loadDocuments();
-    return;
+  if (view === "home") return enterHomeMode();
+  if (view === "ask") return enterChatMode();
+  enterAppView(view);
+}
+
+function enterHomeMode() {
+  document.body.classList.add("home-active");
+  if (window.HomeBg) window.HomeBg.start(); // liga ANTES de desestacionar o canvas
+  document.body.classList.remove("chat-active"); // desliza de volta (ou instantâneo vindo do .app)
+  checkConnection();
+  loadDocuments();
+}
+
+function enterChatMode() {
+  const fromRain =
+    document.body.classList.contains("home-active") &&
+    !document.body.classList.contains("chat-active");
+  // Entrada do conteúdo atrasada (fade) só quando a chuva está saindo;
+  // vindo do .app a troca é instantânea, sem delay
+  homeChat.classList.toggle("chat-anim", fromRain && !reduceMotion());
+  document.body.classList.add("home-active", "chat-active");
+  if (!fromRain || reduceMotion()) {
+    // vindo do .app (canvas some sem transição) ou com movimento reduzido
+    if (window.HomeBg) window.HomeBg.stop();
+  } else {
+    // animado: a chuva continua pintando enquanto desliza para cima;
+    // o stop acontece no transitionend, com fallback caso o evento se perca
+    setTimeout(() => {
+      if (document.body.classList.contains("chat-active") && window.HomeBg) {
+        window.HomeBg.stop();
+      }
+    }, 850);
   }
-  document.body.classList.remove("home-active");
-  if (window.HomeBg) window.HomeBg.stop();
+  chatInput.focus();
+}
+
+function enterAppView(view) {
+  document.body.classList.remove("home-active", "chat-active");
+  if (window.HomeBg) window.HomeBg.stop(); // idempotente se já estava parado
   navItems.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
   views.forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
-
   if (view === "docs") loadDocuments();
   if (view === "history") loadHistory();
 }
+
+homeCanvas.addEventListener("transitionend", (e) => {
+  if (e.propertyName !== "transform") return;
+  if (document.body.classList.contains("chat-active") && window.HomeBg) {
+    window.HomeBg.stop();
+  }
+});
 
 navItems.forEach((btn) => {
   btn.addEventListener("click", () => navigateTo(btn.dataset.view));
@@ -68,27 +111,77 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-/* ---------- PERGUNTAR ---------- */
+/* ---------- CHAT (shell da home) ---------- */
 
-const askForm = document.getElementById("ask-form");
-const askInput = document.getElementById("ask-input");
-const askSubmit = document.getElementById("ask-submit");
-const askResult = document.getElementById("ask-result");
-const askEmpty = document.getElementById("ask-empty");
-const askLoading = document.getElementById("ask-loading");
-const answerText = document.getElementById("answer-text");
-const answerSources = document.getElementById("answer-sources");
+const homeChat = document.getElementById("home-chat");
+const chatThread = document.getElementById("chat-thread");
+const chatForm = document.getElementById("chat-form");
+const chatInput = document.getElementById("chat-input");
 
-askForm.addEventListener("submit", async (e) => {
+const chatMessages = []; // { question, answer, sources, questionId }
+let chatPending = false;
+
+const CHAT_DOC_ICON = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
+
+// Só **negrito** (não cruza linhas de propósito); escapa o HTML antes
+function renderMarkdownLite(text) {
+  return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+}
+
+function chatScrollToEnd() {
+  chatThread.scrollTop = chatThread.scrollHeight;
+}
+
+function renderAnswerBlock(data) {
+  const sources = (data.sources || [])
+    .map(
+      (s) =>
+        `<div class="chat-source-row">${CHAT_DOC_ICON}<span>${escapeHtml(s.title)}</span></div>`
+    )
+    .join("");
+  const feedback = data.questionId
+    ? `
+    <div class="chat-feedback-row" data-qid="${data.questionId}">
+      <span class="chat-fb-label">Essa resposta ajudou?</span>
+      <button class="chat-fb-btn" data-val="1" title="Sim, ajudou">👍</button>
+      <button class="chat-fb-btn" data-val="-1" title="Não ajudou">👎</button>
+      <span class="chat-fb-thanks hidden">Obrigado! Feedback registrado.</span>
+    </div>`
+    : "";
+  return `
+  <div class="chat-answer">
+    <div class="chat-answer-label">Resposta</div>
+    <div class="chat-answer-text">${renderMarkdownLite(data.answer)}</div>
+    <div class="chat-answer-sep"></div>
+    ${sources}
+    ${feedback}
+  </div>`;
+}
+
+chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const question = askInput.value.trim();
-  if (!question) return;
+  const question = chatInput.value.trim();
+  if (!question || chatPending) return;
 
-  askEmpty.classList.add("hidden");
-  askResult.classList.add("hidden");
-  askLoading.classList.remove("hidden");
-  askSubmit.disabled = true;
+  if (homeChat.classList.contains("is-empty")) {
+    homeChat.classList.remove("is-empty");
+    homeChat.classList.add("has-thread");
+    chatInput.placeholder = "Escreva uma Mensagem...";
+  }
 
+  const exchange = document.createElement("div");
+  exchange.className = "chat-exchange";
+  exchange.innerHTML = `
+    <div class="chat-msg-user">${escapeHtml(question)}</div>
+    <div class="chat-msg-pending"><span></span><span></span><span></span></div>`;
+  chatThread.appendChild(exchange);
+
+  chatPending = true;
+  chatInput.disabled = true;
+  chatInput.value = "";
+  chatScrollToEnd();
+
+  const pending = exchange.querySelector(".chat-msg-pending");
   try {
     const res = await fetch(apiUrl("/ask"), {
       method: "POST",
@@ -96,31 +189,55 @@ askForm.addEventListener("submit", async (e) => {
       body: JSON.stringify({ question }),
     });
     const data = await res.json();
-
     if (!res.ok) throw new Error(data.error || "Erro ao consultar.");
 
-    answerText.textContent = data.answer;
-    currentQuestionId = data.questionId || null;
-    resetFeedbackUI();
-
-    if (data.sources && data.sources.length) {
-      answerSources.innerHTML = data.sources
-        .map((s) => `<span class="source-tag">📄 ${escapeHtml(s.title)}</span>`)
-        .join("");
-    } else {
-      answerSources.innerHTML = `<span class="no-sources">Nenhum documento correspondente foi encontrado na base.</span>`;
-    }
-
-    askResult.classList.remove("hidden");
+    chatMessages.push({
+      question,
+      answer: data.answer,
+      sources: data.sources || [],
+      questionId: data.questionId || null,
+    });
+    pending.outerHTML = renderAnswerBlock(data);
   } catch (err) {
-    answerText.textContent = `⚠️ ${err.message}`;
-    answerSources.innerHTML = "";
-    currentQuestionId = null;
-    document.getElementById("answer-feedback").classList.add("hidden");
-    askResult.classList.remove("hidden");
+    const msg =
+      err instanceof TypeError
+        ? "Não foi possível conectar ao servidor. Verifique as Configurações."
+        : err.message;
+    pending.outerHTML = `
+    <div class="chat-answer error">
+      <div class="chat-answer-label">Resposta</div>
+      <div class="chat-answer-text">⚠️ ${escapeHtml(msg)}</div>
+    </div>`;
   } finally {
-    askLoading.classList.add("hidden");
-    askSubmit.disabled = false;
+    chatPending = false;
+    chatInput.disabled = false;
+    chatInput.focus();
+    chatScrollToEnd();
+  }
+});
+
+// Feedback por resposta — delegação (a thread é gerada via innerHTML)
+chatThread.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".chat-fb-btn");
+  if (!btn) return;
+  const row = btn.closest(".chat-feedback-row");
+  const qid = row.dataset.qid;
+  const value = Number(btn.dataset.val);
+  try {
+    const res = await fetch(apiUrl(`/history/${qid}/feedback`), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ value }),
+    });
+    if (!res.ok) throw new Error();
+    row
+      .querySelectorAll(".chat-fb-btn")
+      .forEach((b) => b.classList.toggle("selected", b === btn));
+    row.querySelector(".chat-fb-thanks").classList.remove("hidden");
+  } catch {
+    const thanks = row.querySelector(".chat-fb-thanks");
+    thanks.textContent = "Não foi possível registrar o feedback.";
+    thanks.classList.remove("hidden");
   }
 });
 
@@ -406,40 +523,3 @@ settingsForm.addEventListener("submit", async (e) => {
   setInterval(checkConnection, 30000);
 })();
 
-/* ---------- FEEDBACK DA RESPOSTA ---------- */
-
-let currentQuestionId = null;
-const fbUp = document.getElementById("fb-up");
-const fbDown = document.getElementById("fb-down");
-const fbThanks = document.getElementById("fb-thanks");
-const answerFeedback = document.getElementById("answer-feedback");
-
-function resetFeedbackUI() {
-  answerFeedback.classList.remove("hidden");
-  fbThanks.classList.add("hidden");
-  fbUp.classList.remove("selected");
-  fbDown.classList.remove("selected");
-  fbUp.disabled = false;
-  fbDown.disabled = false;
-}
-
-async function sendFeedback(value) {
-  if (!currentQuestionId) return;
-  try {
-    const res = await fetch(apiUrl(`/history/${currentQuestionId}/feedback`), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ value }),
-    });
-    if (!res.ok) throw new Error();
-    (value === 1 ? fbUp : fbDown).classList.add("selected");
-    (value === 1 ? fbDown : fbUp).classList.remove("selected");
-    fbThanks.classList.remove("hidden");
-  } catch {
-    fbThanks.textContent = "Não foi possível registrar o feedback.";
-    fbThanks.classList.remove("hidden");
-  }
-}
-
-fbUp.addEventListener("click", () => sendFeedback(1));
-fbDown.addEventListener("click", () => sendFeedback(-1));

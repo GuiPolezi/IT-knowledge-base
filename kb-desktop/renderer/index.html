@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
 <link rel="stylesheet" href="home.css" />
+<link rel="stylesheet" href="chat.css" />
 <link rel="stylesheet" href="cursor.css" />
 </head>
 <body class="home-active">
@@ -51,6 +52,18 @@
     <button id="home-menu-btn" class="home-menu-btn" aria-haspopup="menu" aria-expanded="false">MENU</button>
   </div>
 
+  <!-- MODO CHAT — mesmo shell da home (card, MENU e letreiro compartilhados) -->
+  <div id="home-chat" class="home-chat is-empty">
+    <h2 class="chat-title">Tire sua Dúvida</h2>
+    <div id="chat-thread" class="chat-thread" role="log" aria-live="polite"></div>
+    <form id="chat-form" class="chat-composer">
+      <input id="chat-input" class="chat-input" type="text"
+             placeholder="Como posso te ajudar?" autocomplete="off" />
+    </form>
+    <p class="chat-tips">Como perguntar bem: cite o sistema, o sintoma exato
+       (com a mensagem de erro, se houver) e o que você quer saber.</p>
+  </div>
+
   <h1 class="home-hero" aria-label="IT Knowledge Base">IT&nbsp;Knowledge&nbsp;Base</h1>
 </section>
 
@@ -69,10 +82,10 @@
       <button class="nav-item" data-view="home">
         <span class="nav-glyph">&lt;-</span> Home
       </button>
-      <button class="nav-item active" data-view="ask">
+      <button class="nav-item" data-view="ask">
         <span class="nav-glyph">?&gt;</span> Perguntar
       </button>
-      <button class="nav-item" data-view="docs">
+      <button class="nav-item active" data-view="docs">
         <span class="nav-glyph">::</span> Documentos
       </button>
       <button class="nav-item" data-view="history">
@@ -94,62 +107,8 @@
 
   <main class="content">
 
-    <!-- VIEW: PERGUNTAR -->
-    <section id="view-ask" class="view active">
-      <header class="view-header">
-        <h1>Tire sua dúvida</h1>
-        <p>Pergunte sobre um sistema, um erro ou um procedimento. A resposta é gerada a partir da documentação cadastrada.</p>
-      </header>
-
-      <form id="ask-form" class="console">
-        <span class="console-caret">&gt;</span>
-        <input
-          id="ask-input"
-          type="text"
-          placeholder="ex: Sistema Atlas: erro 504 ao gerar boleto, como corrigir?"
-          autocomplete="off"
-          required
-        />
-        <button type="submit" id="ask-submit">Perguntar</button>
-      </form>
-
-      <div class="ask-tips">
-        <span class="ask-tips-label">Como perguntar bem:</span>
-        cite o <strong>sistema</strong>, o <strong>sintoma exato</strong> (com a mensagem de erro, se houver) e o que você quer saber.
-        <div class="ask-tips-examples">
-          <span class="tip-bad">✗ "erro no atlas"</span>
-          <span class="tip-good">✓ "Sistema Atlas: cliente recebe erro 504 ao gerar boleto, como corrigir?"</span>
-        </div>
-      </div>
-
-      <div id="ask-result" class="ask-result hidden">
-        <div class="answer-card">
-          <div class="answer-header">
-            <span class="pill pill-answer">Resposta</span>
-          </div>
-          <div id="answer-text" class="answer-text"></div>
-          <div id="answer-sources" class="answer-sources"></div>
-          <div id="answer-feedback" class="answer-feedback hidden">
-            <span class="feedback-label">Essa resposta ajudou?</span>
-            <button id="fb-up" class="fb-btn" title="Sim, ajudou">👍</button>
-            <button id="fb-down" class="fb-btn" title="Não ajudou">👎</button>
-            <span id="fb-thanks" class="fb-thanks hidden">Obrigado! Feedback registrado.</span>
-          </div>
-        </div>
-      </div>
-
-      <div id="ask-empty" class="empty-state">
-        <p>Nenhuma pergunta feita ainda. Cadastre alguns documentos e comece a perguntar.</p>
-      </div>
-
-      <div id="ask-loading" class="loading hidden">
-        <div class="spinner"></div>
-        <span>Consultando a base de conhecimento…</span>
-      </div>
-    </section>
-
     <!-- VIEW: DOCUMENTOS -->
-    <section id="view-docs" class="view">
+    <section id="view-docs" class="view active">
       <header class="view-header">
         <h1>Documentos</h1>
         <p>Relatórios, notas e documentações que alimentam as respostas da IA.</p>
